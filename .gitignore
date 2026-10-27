@@ -1,0 +1,9 @@
+node_modules/
+.env*
+*バックアップ*.json
+*移行用*.json
+*recovery*.json
+*.png
+*.jpg
+*.jpeg
+work/
