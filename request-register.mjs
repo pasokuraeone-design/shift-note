@@ -1,0 +1,7 @@
+import {esc,monthDays} from './core.mjs';
+export function requestStatus(record,month){const count=Object.keys(record?.days||{}).filter(d=>d.startsWith(month+'-')).length,total=monthDays(month);return {count,total,kind:count===total?'complete':count?'partial':'missing',label:count===total?'登録済み':count?'一部登録':'未登録'};}
+export function registerMarkup(staff,requests,month){
+  const active=staff.filter(p=>p.active||requests[p.id]);const rows=active.map(p=>({p,r:requests[p.id],s:requestStatus(requests[p.id],month)}));const full=rows.filter(x=>x.s.kind==='complete').length;
+  const dateLabel=r=>{if(!r?.importedAt)return '';const d=new Date(r.importedAt);return Number.isNaN(d.valueOf())?'':new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric'}).format(d);};
+  return `<div class="register-heading"><strong>${Number(month.slice(5))}月の希望休・登録状況</strong><span>全日登録 ${full} / ${active.length}人</span></div><div class="request-register">${rows.map(({p,r,s})=>`<div class="request-person ${s.kind}"><button class="request-name" data-review-request="${esc(p.id)}" title="${esc(r?.source||'まだ登録されていません')}">${esc(p.name)}${p.active?'':'（休止中）'}</button><span class="request-status">${s.kind==='complete'?'✓ ':''}${s.label}${s.count?` ${s.count}/${s.total}日`:''}</span><small>${r?`最終更新 ${dateLabel(r)||'不明'}`:'画像から追加できます'}</small><button class="request-import" data-import-request="${esc(p.id)}">${r?'画像を再取り込み':'画像を取り込む'}</button></div>`).join('')}</div><p class="register-note">「未登録」「一部登録」は、希望休なし・出勤可能という意味ではありません。名前を押すと登録内容を確認できます。</p>`;
+}
